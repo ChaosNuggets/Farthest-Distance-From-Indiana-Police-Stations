@@ -4,3 +4,5 @@ The algorithm is stupid because I'm bad at coding, but basically I have an array
 Also the array of points is scuffed because the Indiana border line on the south side of the state is blad, so it leaves out little pockets on the south side.
 
 Police station locations source: https://koordinates.com/layer/108466-indiana-police-stations/data/
+
+I used the Geocode google sheets plugin to convert the addresses to earth coordinates. Link to the plugin: https://workspace.google.com/marketplace/app/geocode_by_awesome_table/904124517349
