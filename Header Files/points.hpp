@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 
-extern std::vector<std::vector<std::pair<float, float>>> points;
+extern std::vector<std::vector<bool>> points;
 void fillPoints();
 
 #endif

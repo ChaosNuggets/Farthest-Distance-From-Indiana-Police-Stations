@@ -1,6 +1,21 @@
 #include "points.hpp"
+#include "constants.hpp"
+#include <cmath>
+#include <functional>
+#include <iostream>
 
-std::vector<std::vector<std::pair<float, float>>> points;
+//This convoluted line creates a 2d matrix of coordinates where all the coordinates are {999, 999} (there's no null in c++ sadly)
+std::vector<std::vector<bool>> points(LATSIZE, std::vector<bool>(LONGSIZE, false));
+
+std::pair<int, int> convertCoordToIndex(const std::pair<float, float>& coordinate, std::function<int(float)> roundFunc)
+{
+    const auto& [latitude, longitude] = coordinate;
+    const float latDifference = (latitude - LOWESTLAT) / LATIN1MILE;
+    const float longDifference = (longitude - LOWESTLONG) / LONGIN1MILE;
+    int latIndex = roundFunc(latDifference);
+    int longIndex = roundFunc(longDifference);
+    return {latIndex, longIndex};
+}
 
 void fillPoints()
 {
@@ -18,22 +33,19 @@ void fillPoints()
     };
     for (auto& rectangleCornerSet : rectangleCorners)
     {
-        const float LONGIN1MILE = 3.20212925e-4;
-        const float LATIN1MILE = 2.5233409e10-4;
-        const float LOWLAT = rectangleCornerSet.first.first;
-        const float HIGHLAT = rectangleCornerSet.second.first;
-        const float LOWLONG = rectangleCornerSet.first.second;
-        const float HIGHLONG = rectangleCornerSet.second.second;
+        const float lowLat = rectangleCornerSet.first.first;
+        const float highLat = rectangleCornerSet.second.first;
+        const float lowLong = rectangleCornerSet.first.second;
+        const float highLong = rectangleCornerSet.second.second;
 
         // Fill the points to be spaced less than 1 mile apart
-        for (float i = LOWLAT; i <= HIGHLAT; i += LATIN1MILE)
+        for (float i = lowLat; i <= highLat; i += LATIN1MILE)
         {
-            std::vector<std::pair<float, float>> rowOfPoints;
-            for (float j = LOWLONG; j <= HIGHLONG; j += LONGIN1MILE)
+            for (float j = lowLong; j <= highLong; j += LONGIN1MILE)
             {
-                rowOfPoints.push_back({i, j});
+                auto [latIndex, longIndex] = convertCoordToIndex({i, j}, roundf);
+                points[latIndex][longIndex] = true;
             }
-            points.push_back(rowOfPoints);
         }
     }
 }
