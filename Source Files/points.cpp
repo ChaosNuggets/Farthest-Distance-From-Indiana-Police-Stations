@@ -1,25 +1,29 @@
 #include "points.hpp"
 #include "constants.hpp"
 #include <cmath>
-#include <functional>
 #include <iostream>
 
-//This convoluted line creates a 2d matrix of coordinates where all the coordinates are {999, 999} (there's no null in c++ sadly)
+//This convoluted line creates a 2d matrix of points of size LATSIZE by LONGSIZE
 std::vector<std::vector<bool>> points(LATSIZE, std::vector<bool>(LONGSIZE, false));
 
-std::pair<int, int> convertCoordToIndex(const std::pair<float, float>& coordinate, std::function<int(float)> roundFunc)
+std::pair<int, int> convertCoordToIndex(const std::pair<float, float>& coordinate)
 {
-    const auto& [latitude, longitude] = coordinate;
-    const float latDifference = (latitude - LOWESTLAT) / LATIN1MILE;
-    const float longDifference = (longitude - LOWESTLONG) / LONGIN1MILE;
-    int latIndex = roundFunc(latDifference);
-    int longIndex = roundFunc(longDifference);
+    const auto [latitude, longitude] = coordinate; // Extract data
+
+    // Calculate the coordinate's difference in miles from LOWEST_LAT and LOWEST_LONG
+    const float latDifference = (latitude - LOWEST_LAT) / LAT_IN_1_MILE;
+    const float longDifference = (longitude - LOWEST_LONG) / LONG_IN_1_MILE;
+
+    // Round the difference so it's an integer
+    int latIndex = round(latDifference); // Also why is round not constexpr aaaaa
+    int longIndex = round(longDifference);
+
     return {latIndex, longIndex};
 }
 
 void fillPoints()
 {
-    // These are the coordinates of corners of rectangles that are in Indiana
+    // These are the coordinates of corners of rectangles that make up the points in Indiana
     const std::vector<std::pair<std::pair<float, float>, std::pair<float, float>>> rectangleCorners =
     {
         {{39.105480, -87.523661}, {41.759907, -84.820157}},
@@ -31,19 +35,21 @@ void fillPoints()
         {{37.999366, -87.910623}, {38.198666, -86.525765}},
         {{38.016023, -86.190050}, {38.198666, -85.932822}}
     };
+
     for (auto& rectangleCornerSet : rectangleCorners)
     {
+        // Extract data
         const float lowLat = rectangleCornerSet.first.first;
         const float highLat = rectangleCornerSet.second.first;
         const float lowLong = rectangleCornerSet.first.second;
         const float highLong = rectangleCornerSet.second.second;
 
         // Fill the points to be spaced less than 1 mile apart
-        for (float i = lowLat; i <= highLat; i += LATIN1MILE)
+        for (float i = lowLat; i <= highLat; i += LAT_IN_1_MILE)
         {
-            for (float j = lowLong; j <= highLong; j += LONGIN1MILE)
+            for (float j = lowLong; j <= highLong; j += LONG_IN_1_MILE)
             {
-                auto [latIndex, longIndex] = convertCoordToIndex({i, j}, roundf);
+                auto [latIndex, longIndex] = convertCoordToIndex({i, j});
                 points[latIndex][longIndex] = true;
             }
         }
