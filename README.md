@@ -34,7 +34,7 @@ Therefore the radius of the circles probably has to be about 16 - 17 miles in or
 
 You can mess around with this program yourself by changing the MILES_BETWEEN_POINTS constant in constants.cpp and compiling it with
 ```sh
-g++ -O3 -I \"./Header Files\" \"Source Files/*.cpp\" -o program && ./program
+g++ -O3 -I "./Header Files" "Source Files/*.cpp" -o program
 ```
 
 
