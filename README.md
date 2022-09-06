@@ -44,3 +44,5 @@ g++ -O3 -I "./Header Files" "Source Files/*.cpp" -o program
 Police station locations source: https://koordinates.com/layer/108466-indiana-police-stations/data/
 
 I used the Geocode google sheets plugin to convert the addresses to earth coordinates. Link to the plugin: https://workspace.google.com/marketplace/app/geocode_by_awesome_table/904124517349
+
+I used Aayush Chaturvedi's code for calculating the distance between two points on Earth. https://www.geeksforgeeks.org/program-distance-two-points-earth/
