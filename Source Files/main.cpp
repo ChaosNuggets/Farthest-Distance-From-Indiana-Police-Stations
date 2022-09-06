@@ -1,78 +1,81 @@
-#define _USE_MATH_DEFINES
-
 #include <iostream>
+#include <iomanip>
 #include "station-coordinates.hpp"
 #include "points.hpp"
+#include "get-test-bounds.hpp"
+#include "calculate-distance.hpp"
 #include "constants.hpp"
-#include <cmath>
 
-constexpr long double toRadians(const long double degrees)
+std::pair<float, float> remainingPoint;
+
+static void testAllStations(float circleRadius)
 {
-	long double one_deg = M_PI / 180;
-	return (one_deg * degrees);
+    for (const auto& stationCoord : stationCoordinates)
+    {
+        // Extract data
+        const auto [lowCorner, highCorner] = getTestIndexBounds(stationCoord, circleRadius);
+        auto [lowLatIndex, lowLongIndex] = lowCorner;
+        auto [highLatIndex, highLongIndex] = highCorner;
+
+        // Don't test indexes that are out of bounds of the points matrix
+        if (lowLatIndex < 0) lowLatIndex = 0;
+        if (lowLongIndex < 0) lowLongIndex = 0;
+        if (highLatIndex >= LATSIZE) highLatIndex = LATSIZE - 1;
+        if (highLongIndex >= LONGSIZE) highLongIndex = LONGSIZE - 1;
+
+        for (int i = lowLatIndex; i <= highLatIndex; i++)
+        {
+            for (int j = lowLongIndex; j <= highLongIndex; j++)
+            {
+                const std::pair<float, float> pointCoord = indexToCoord({i, j});
+                const float distance = calculateDistance(pointCoord, stationCoord);
+                if (distance <= circleRadius)
+                {
+                    points[i][j] = false;
+                }
+            }
+        }
+    }
 }
 
-constexpr long double toDegrees(const long double radians)
+static bool anyRemainingPoints()
 {
-    long double one_rad = 180 / M_PI;
-    return (one_rad * radians);
-}
-
-constexpr float calcCoordLong(const std::pair<float, float>& coordinate, const float distance)
-{
-    auto [latitude, longitude] = coordinate; // Extract latitude and longitude from coordinate
-
-    //Convert coordinates to radians
-    latitude = toRadians(latitude);
-    longitude = toRadians(longitude);
-    
-    // Stupid formula
-    float difference = acos( (cos(distance / 3963) - pow(sin(latitude), 2)) / pow(cos(latitude), 2) );
-    
-    // Make difference negative if distance is negative
-    if (distance < 0) difference *= -1;
-
-    return toDegrees(longitude + difference);
-}
-
-constexpr float calcCoordLat(const std::pair<float, float>& coordinate, const float distance)
-{
-    const float latitude = coordinate.first; // Extract latitude from coordinate
-    const float difference = distance * LAT_IN_1_MILE; // Not stupid formula
-    return latitude + difference;
-}
-
-constexpr std::pair<std::pair<float, float>, std::pair<float, float>> getTestCoordinateBounds(const std::pair<float, float>& stationCoordinate, const float radiusOfCircles)
-{
-    const float highLat = calcCoordLat(stationCoordinate, radiusOfCircles);
-    const float lowLat = calcCoordLat(stationCoordinate, -radiusOfCircles);
-    const float highLong = calcCoordLong(stationCoordinate, radiusOfCircles);
-    const float lowLong = calcCoordLong(stationCoordinate, -radiusOfCircles);
-    return {{lowLat, lowLong}, {highLat, highLong}};
-}
-
-// The corners of the rectangles of the indexes you should test
-std::pair<std::pair<int, int>, std::pair<int, int>> getTestIndexBounds(const std::pair<float, float>& stationCoordinate, const float radiusOfCircles)
-{
-    //Extract the corners from the coordinate bounds
-    const auto [lowCorner, highCorner] = getTestCoordinateBounds(stationCoordinate, radiusOfCircles);
-
-    //Calculate the index bounds
-    auto [lowLat, lowLong] = convertCoordToIndex(lowCorner);
-    auto [highLat, highLong] = convertCoordToIndex(highCorner);
-    
-    // Make the range a little bigger than it has to be to correct for rounding errors, it's just safer
-    return {{lowLat - 1, lowLong - 1}, {highLat + 1, highLong + 1}};
+    for (int i = 0; i < LATSIZE; i++)
+    {
+        for (int j = 0; j < LONGSIZE; j++)
+        {
+            if (points[i][j])
+            {
+                remainingPoint = indexToCoord({i, j});
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 int main()
 {
-    fillPoints();
-    const auto [lowCorner, highCorner] = getTestIndexBounds({40.570342, -86.053295}, 30);
-    const auto [lowLat, lowLong] = lowCorner;
-    const auto [highLat, highLong] = highCorner;
-    std::cout << lowLat << ' ' << lowLong << '\n';
-    std::cout << highLat << ' ' << highLong << '\n';
+    long double radiusAdd = 25; // Add or subtract this number from circleRadius
+    long double circleRadius = 50; // Start circleRadius at 50 miles
+    std::cout << std::setprecision(15);
+    while (radiusAdd > 0)
+    {
+        fillPoints();
+        testAllStations(circleRadius);
+        if (anyRemainingPoints())
+        {
+            std::cout << circleRadius << " is too small, point remaining at ";
+            std::cout << remainingPoint.first << ", " << remainingPoint.second << '\n';
+            circleRadius += radiusAdd;
+            radiusAdd /= 2;
+        } else
+        {
+            std::cout << circleRadius << " is too big\n";
+            circleRadius -= radiusAdd;
+            radiusAdd /= 2;
+        }
+    }
     std::cin.ignore();
     return 0;
 }

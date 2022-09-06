@@ -1,24 +1,35 @@
+#define _USE_MATH_DEFINES
 #include "points.hpp"
 #include "constants.hpp"
 #include <cmath>
-#include <iostream>
 
 //This convoluted line creates a 2d matrix of points of size LATSIZE by LONGSIZE
 std::vector<std::vector<bool>> points(LATSIZE, std::vector<bool>(LONGSIZE, false));
 
-std::pair<int, int> convertCoordToIndex(const std::pair<float, float>& coordinate)
+std::pair<int, int> coordToIndex(const std::pair<float, float>& coordinate)
 {
     const auto [latitude, longitude] = coordinate; // Extract data
 
     // Calculate the coordinate's difference in miles from LOWEST_LAT and LOWEST_LONG
-    const float latDifference = (latitude - LOWEST_LAT) / LAT_IN_1_MILE;
-    const float longDifference = (longitude - LOWEST_LONG) / LONG_IN_1_MILE;
+    const float latMileDifference = (latitude - LOWEST_LAT) / LAT_IN_1_MILE;
+    const float longMileDifference = (longitude - LOWEST_LONG) / LONG_IN_1_MILE;
 
     // Round the difference so it's an integer
-    int latIndex = round(latDifference); // Also why is round not constexpr aaaaa
-    int longIndex = round(longDifference);
+    int latIndex = round(latMileDifference / MILES_BETWEEN_POINTS); // Also why is round not constexpr aaaaa
+    int longIndex = round(longMileDifference / MILES_BETWEEN_POINTS);
 
     return {latIndex, longIndex};
+}
+
+std::pair<float, float> indexToCoord(const std::pair<int, int>& index)
+{
+    const auto [latIndex, longIndex] = index; // Extract data
+
+    // Do the conversion
+    const float latitude = latIndex * LAT_IN_1_MILE * MILES_BETWEEN_POINTS + LOWEST_LAT;
+    const float longitude = longIndex * LONG_IN_1_MILE * MILES_BETWEEN_POINTS + LOWEST_LONG;
+
+    return {latitude, longitude};
 }
 
 void fillPoints()
@@ -44,12 +55,12 @@ void fillPoints()
         const float lowLong = rectangleCornerSet.first.second;
         const float highLong = rectangleCornerSet.second.second;
 
-        // Fill the points to be spaced less than 1 mile apart
-        for (float i = lowLat; i <= highLat; i += LAT_IN_1_MILE)
+        // Fill the points to be spaced less than MILES_BETWEEN_POINTS apart
+        for (float i = lowLat; i <= highLat; i += LAT_IN_1_MILE * MILES_BETWEEN_POINTS)
         {
-            for (float j = lowLong; j <= highLong; j += LONG_IN_1_MILE)
+            for (float j = lowLong; j <= highLong; j += LONG_IN_1_MILE * MILES_BETWEEN_POINTS)
             {
-                auto [latIndex, longIndex] = convertCoordToIndex({i, j});
+                auto [latIndex, longIndex] = coordToIndex({i, j});
                 points[latIndex][longIndex] = true;
             }
         }
