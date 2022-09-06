@@ -65,13 +65,13 @@ int main()
         testAllStations(circleRadius);
         if (anyRemainingPoints())
         {
-            std::cout << circleRadius << " is too small, point remaining at ";
+            std::cout << "circle radius " << circleRadius << " is too small, point remaining at ";
             std::cout << remainingPoint.first << ", " << remainingPoint.second << '\n';
             circleRadius += radiusAdd;
             radiusAdd /= 2;
         } else
         {
-            std::cout << circleRadius << " is too big\n";
+            std::cout << "circle radius " << circleRadius << " is too big\n";
             circleRadius -= radiusAdd;
             radiusAdd /= 2;
         }
