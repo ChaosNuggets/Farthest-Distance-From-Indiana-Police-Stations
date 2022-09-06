@@ -25,7 +25,7 @@ Also the array of points is scuffed because the Indiana border line on the south
 ## Result
 
 After a bunch of iterations with the points spaced 0.25 miles apart, I got:
-16.6207513809204 is too small, point remaining at 38.097053527832, -86.5286331176758
+"16.6207513809204 is too small, point remaining at 38.097053527832, -86.5286331176758".
 Therefore the radius of the circles probably has to be about 16 - 17 miles in order for all of Indiana to be covered
 
 
