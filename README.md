@@ -1,10 +1,10 @@
 # Farthest-Distance-From-Indiana-Police-Stations
 
-##### Table of Contents  
-[How the Program Works](#How-the-Program-Works)  
-[Result](#Result)
-[Usage](#Usage)
-[Tools I Used](#Tools-I-Used)
+### Table of Contents  
+1. [How the Program Works](#How-the-Program-Works)  
+2. [Result](#Result)
+3. [Usage](#Usage)
+4. [Tools I Used](#Tools-I-Used)
 
 
 
