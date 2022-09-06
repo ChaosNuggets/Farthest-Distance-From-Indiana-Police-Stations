@@ -33,6 +33,7 @@ static void testAllStations(float circleRadius)
             {
                 const std::pair<float, float> pointCoord = indexToCoord({i, j});
                 const float distance = calculateDistance(pointCoord, stationCoord);
+                
                 if (distance <= circleRadius)
                 {
                     points[i][j] = false;
@@ -44,7 +45,7 @@ static void testAllStations(float circleRadius)
 
 static float calculateCoverage()
 {
-    long double pointsNotCovered;
+    long double pointsNotCovered = 0;
     for (int i = 0; i < LATSIZE; i++)
     {
         for (int j = 0; j < LONGSIZE; j++)
@@ -63,15 +64,15 @@ int main()
 {
     
     std::cout << std::setprecision(15);
-    std::cout << "Enter the speed of the drone in mph\n";
-    std::string input;
-    std::getline(std::cin, input);
-    double speed = stold(input);
-    long double circleRadius = convertSpeedToCircleRadius(speed); // The circleRadius the user enters in miles
-    fillPoints();
-    testAllStations(circleRadius);
-    const long double percentCovered = calculateCoverage() * 100;
-    std::cout << "Percent covered with drone speed " << speed << "mph and flight time 5 minutes is " << percentCovered << '%';
+    std::cout << "Percent coverage with " << MAX_TIME << " min of flight time starting from 0mph and incrementing by 5mph:\n";
+    for (double speed = 0; speed <= 210; speed+=5)
+    {
+        long double circleRadius = convertSpeedToCircleRadius(speed); // The circleRadius the user enters in miles
+        fillPoints();
+        testAllStations(circleRadius);
+        const long double percentCovered = calculateCoverage() * 100;
+        std::cout << percentCovered << "%\n";
+    }
     std::cin.ignore();
     return 0;
 }
