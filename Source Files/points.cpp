@@ -5,6 +5,7 @@
 
 //This convoluted line creates a 2d matrix of points of size LATSIZE by LONGSIZE
 std::vector<std::vector<bool>> points(LATSIZE, std::vector<bool>(LONGSIZE, false));
+long double totalPoints; // The total number of points in Indiana
 
 std::pair<int, int> coordToIndex(const std::pair<float, float>& coordinate)
 {
@@ -62,6 +63,7 @@ void fillPoints()
             {
                 auto [latIndex, longIndex] = coordToIndex({i, j});
                 points[latIndex][longIndex] = true;
+                totalPoints++;
             }
         }
     }

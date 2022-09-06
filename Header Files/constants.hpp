@@ -11,5 +11,7 @@ const extern double LAT_IN_1_MILE;
 const extern double MILES_BETWEEN_POINTS;
 const extern int LATSIZE;
 const extern int LONGSIZE;
+const extern long double MAX_TIME;
+const extern long double MINUTES_IN_1_HOUR;
 
 #endif

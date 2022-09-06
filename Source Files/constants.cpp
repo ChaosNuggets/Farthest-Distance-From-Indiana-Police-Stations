@@ -11,3 +11,5 @@ const double LAT_IN_1_MILE = 0.01447228581; // Latitude per mile
 const double MILES_BETWEEN_POINTS = 0.25; // Controls the density of the points
 const int LATSIZE = ceil( (HIGHEST_LAT - LOWEST_LAT) / (LAT_IN_1_MILE * MILES_BETWEEN_POINTS) ); // Vertical size of points matrix
 const int LONGSIZE = ceil( (HIGHEST_LONG - LOWEST_LONG) / (LONG_IN_1_MILE * MILES_BETWEEN_POINTS) ); // Horizontal size of points matrix
+const long double MAX_TIME = 5; // The longest time that we are allowing our drone to fly for
+const long double MINUTES_IN_1_HOUR = 60; // Self explanatory

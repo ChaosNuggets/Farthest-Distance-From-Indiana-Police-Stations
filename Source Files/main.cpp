@@ -1,12 +1,16 @@
 #include <iostream>
 #include <iomanip>
+#include <cstring>
 #include "station-coordinates.hpp"
 #include "points.hpp"
 #include "get-test-bounds.hpp"
 #include "calculate-distance.hpp"
 #include "constants.hpp"
 
-std::pair<float, float> remainingPoint;
+long double convertSpeedToCircleRadius(long double speed)
+{
+    return speed * (MAX_TIME / MINUTES_IN_1_HOUR);
+}
 
 static void testAllStations(float circleRadius)
 {
@@ -38,44 +42,36 @@ static void testAllStations(float circleRadius)
     }
 }
 
-static bool anyRemainingPoints()
+static float calculateCoverage()
 {
+    long double pointsNotCovered;
     for (int i = 0; i < LATSIZE; i++)
     {
         for (int j = 0; j < LONGSIZE; j++)
         {
             if (points[i][j])
             {
-                remainingPoint = indexToCoord({i, j});
-                return true;
+                pointsNotCovered++;
             }
         }
     }
-    return false;
+    const long double notCoverage = pointsNotCovered / totalPoints;
+    return 1 - notCoverage;
 }
 
 int main()
 {
-    long double radiusAdd = 25; // Add or subtract this number from circleRadius
-    long double circleRadius = 50; // Start circleRadius at 50 miles
+    
     std::cout << std::setprecision(15);
-    while (radiusAdd > 0)
-    {
-        fillPoints();
-        testAllStations(circleRadius);
-        if (anyRemainingPoints())
-        {
-            std::cout << "circle radius " << circleRadius << " is too small, point remaining at ";
-            std::cout << remainingPoint.first << ", " << remainingPoint.second << '\n';
-            circleRadius += radiusAdd;
-            radiusAdd /= 2;
-        } else
-        {
-            std::cout << "circle radius " << circleRadius << " is too big\n";
-            circleRadius -= radiusAdd;
-            radiusAdd /= 2;
-        }
-    }
+    std::cout << "Enter the speed of the drone in mph\n";
+    std::string input;
+    std::getline(std::cin, input);
+    double speed = stold(input);
+    long double circleRadius = convertSpeedToCircleRadius(speed); // The circleRadius the user enters in miles
+    fillPoints();
+    testAllStations(circleRadius);
+    const long double percentCovered = calculateCoverage() * 100;
+    std::cout << "Percent covered with drone speed " << speed << "mph and flight time 5 minutes is " << percentCovered << '%';
     std::cin.ignore();
     return 0;
 }
